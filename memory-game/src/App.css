@@ -17,6 +17,7 @@
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
+  ['🐡', '🐠', '🐙', '🐬', '🐋', '🦐']
 
 @keyframes logo-spin {
   from {
@@ -42,7 +43,7 @@
 } */
 
 .card:hover {
-  filter: drop-shadow(0 0 2em #f1dc66);
+  filter: drop-shadow(0 0 2em #AECCE4);
 }
 
 .memory-game {
@@ -55,11 +56,18 @@
 .card {
   width: 100px;
   height: 100px;
-  background-color: #FFFFE0;
+  background-color: #d5f4fd;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
   cursor: pointer;
   border-radius: 10px;
+}
+.card.hidden {
+  color: #888;
+}
+
+.game-title {
+  color: #888; 
 }

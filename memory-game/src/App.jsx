@@ -1,67 +1,101 @@
 import { useState, useEffect } from 'react';
+import Confetti from 'react-confetti';
 import './App.css';
 
-// this function makes a deck of card pairs (so each symbol appears twice)
 function generateDeck() {
-  const symbols = ['🍎', '🍌', '🍒', '🍇', '🍉', '🍍']; // just some random fruit emojis
-  return [...symbols, ...symbols]; // we duplicate the array to create pairs
+  const symbols = ['🐡', '🐠', '🐙', '🐬', '🐋', '🦐'];
+  return [...symbols, ...symbols]; // duplicates each symbol to create pairs
 }
 
-// function to shuffle the deck
 function shuffle(deck) {
-  return deck.sort(() => Math.random() - 0.5); // shuffling the cards using random
+  return deck.sort(() => Math.random() - 0.5); // randomly shuffles the deck
 }
 
 function App() {
-  const [deck, setDeck] = useState([]); // state to hold our shuffled deck of cards
-  const [flippedCards, setFlippedCards] = useState([]); // state to track which cards are flipped
-  const [selectedCards, setSelectedCards] = useState([]); // state to track the two selected cards
+  const [deck, setDeck] = useState([]); // stores the deck of cards
+  const [flippedCards, setFlippedCards] = useState([]); // tracks which cards are flipped
+  const [selectedCards, setSelectedCards] = useState([]); // stores the indices of selected cards
+  const [foundPairs, setFoundPairs] = useState(0); // counts the number of matched pairs
+  const [gameWon, setGameWon] = useState(false); // tracks if the game is won
+  const [isComparing, setIsComparing] = useState(false); // prevents more clicks during comparison
 
-  // runs once when the app starts, it creates and shuffles the deck
+  // sets up the game when it first loads by generating and shuffling the deck
   useEffect(() => {
-    const newDeck = shuffle(generateDeck()); // first, we generate and shuffle the deck
-    setDeck(newDeck); // we store the shuffled deck in state
-    setFlippedCards(Array(newDeck.length).fill(false)); // all cards start as not flipped
-  }, []); // the empty array means this effect only runs once, when the app loads
+    const newDeck = shuffle(generateDeck()); // shuffles a new deck
+    setDeck(newDeck); // saves the deck in state
+    setFlippedCards(Array(newDeck.length).fill(false)); // sets all cards as face-down
+  }, []); // the empty array means this runs only once when the game starts
 
-  // this function is called whenever we click on a card
+  // checks if the game is won when all pairs are found
+  useEffect(() => {
+    if (foundPairs === deck.length / 2 && deck.length > 0) {
+      setGameWon(true); // sets gameWon to true if all pairs are found
+    }
+  }, [foundPairs, deck.length]); // this effect runs every time foundPairs changes
+
+  // called when a card is clicked
   const handleCardClick = (index) => {
-    if (flippedCards[index] || selectedCards.length === 2) {
-      return; // if the card is already flipped or two cards are flipped, do nothing
-    }
+    // prevents clicking if the card is already flipped or if two cards are being compared
+    if (flippedCards[index] || selectedCards.length === 2 || isComparing) return;
 
-    const newFlippedCards = [...flippedCards]; // copy the current flipped cards
-    newFlippedCards[index] = true; // flip the clicked card
-    setFlippedCards(newFlippedCards); // update the state with the flipped card
+    const newFlippedCards = [...flippedCards]; // creates a copy of the current flipped cards
+    newFlippedCards[index] = true; // flips the clicked card
+    setFlippedCards(newFlippedCards); // updates the flippedCards state
 
-    const newSelectedCards = [...selectedCards, index]; // add this card to the selected list
+    const newSelectedCards = [...selectedCards, index]; // adds this card to selectedCards
 
+    // if two cards are selected, we need to compare them
     if (newSelectedCards.length === 2) {
-      const [firstCardIndex, secondCardIndex] = newSelectedCards; // get the two selected cards
-      if (deck[firstCardIndex] !== deck[secondCardIndex]) { // if they don't match
+      setIsComparing(true); // stops more clicks during comparison
+
+      const [first, second] = newSelectedCards;
+      if (deck[first] === deck[second]) { // if the two cards match
+        setFoundPairs(foundPairs + 1); // increments found pairs count
+        setSelectedCards([]); // clears the selected cards
+        setIsComparing(false); // allows clicks again
+      } else { // if the two cards don't match
         setTimeout(() => {
-          newFlippedCards[firstCardIndex] = false; // hide the first card again
-          newFlippedCards[secondCardIndex] = false; // hide the second card
-          setFlippedCards([...newFlippedCards]); // update the state to hide the cards again
-        }, 1000); // wait 1 second before flipping the cards back
+          newFlippedCards[first] = false; // flips the first card back down
+          newFlippedCards[second] = false; // flips the second card back down
+          setFlippedCards([...newFlippedCards]); // updates the flippedCards state
+          setSelectedCards([]); // clears the selected cards
+          setIsComparing(false); // allows clicks again after comparison
+        }, 1000); // adds a 1-second delay before flipping cards back
       }
-      setSelectedCards([]); // clear the selected cards after comparison
     } else {
-      setSelectedCards(newSelectedCards); // update selected cards if there's only one so far
+      setSelectedCards(newSelectedCards); // updates selectedCards if only one card is flipped
     }
+  };
+
+  // restarts the game by shuffling a new deck and resetting the state
+  const restartGame = () => {
+    const newDeck = shuffle(generateDeck()); // shuffles a new deck
+    setDeck(newDeck); // sets the new deck
+    setFlippedCards(Array(newDeck.length).fill(false)); // resets all cards to face-down
+    setFoundPairs(0); // resets found pairs count
+    setGameWon(false); // resets gameWon state
+    setSelectedCards([]); // clears the selected cards
+    setIsComparing(false); // resets the isComparing flag
   };
 
   return (
     <div>
-      
+      <h1 className="game-title">Memory Game</h1> 
+      {gameWon && (
+        <>
+          <Confetti /> 
+          <p>Congratulations! You won!</p> 
+          <button style={{ marginBottom: '20px' }} onClick={restartGame}>Play Again</button>
+  </>
+)}
       <div className="memory-game">
         {deck.map((card, index) => (
           <div
-            className="card"
+            className={`card ${!flippedCards[index] ? 'hidden' : ''}`} // adds 'hidden' class if the card is face-down
             key={index}
-            onClick={() => handleCardClick(index)} // when we click, it flips the card
+            onClick={() => handleCardClick(index)} // flips the card when clicked
           >
-            {flippedCards[index] ? card : 'X'} {/* if the card is flipped, show it, otherwise show X */}
+            {flippedCards[index] ? card : 'X'} {/* shows the card if flipped, otherwise shows 'X' */}
           </div>
         ))}
       </div>
