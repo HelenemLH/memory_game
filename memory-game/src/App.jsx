@@ -19,7 +19,7 @@ function App() {
   const [selectedCards, setSelectedCards] = useState([]); // state to track the currently selected cards
   const [foundPairs, setFoundPairs] = useState(0); // state to track the number of pairs found
   const [gameWon, setGameWon] = useState(false); // state to check if the game is won
-  const [isComparing, setIsComparing] = useState(false); // state to block clicks during comparison
+  const [isCheckingPair, setIsCheckingPair] = useState(false); // state to block clicks during comparison
   const [clickCount, setClickCount] = useState(0); // state to count the number of clicks
 
   // runs once when the app loads, initializing the deck and resetting the game state
@@ -39,7 +39,7 @@ function App() {
   // this function is triggered when a card is clicked
   const handleCardClick = (index) => {
     // prevents clicking if the card is already flipped or if two cards are being compared
-    if (flippedCards[index] || selectedCards.length === 2 || isComparing) return;
+    if (flippedCards[index] || selectedCards.length === 2 || isCheckingPair) return;
 
     // increments the click count for each valid click
     setClickCount(clickCount + 1);
@@ -52,13 +52,13 @@ function App() {
 
     // when two cards are selected, compare them
     if (newSelectedCards.length === 2) {
-      setIsComparing(true); // block further clicks during comparison
+      setIsCheckingPair(true); // block further clicks during comparison
 
       const [first, second] = newSelectedCards;
       if (deck[first] === deck[second]) {
         setFoundPairs(foundPairs + 1); // increment the found pairs count if the cards match
         setSelectedCards([]); // reset the selectedCards array
-        setIsComparing(false); // allow clicks again
+        setIsCheckingPair(false); // allow clicks again
       } else {
         // if the cards don't match, flip them back after a delay
         setTimeout(() => {
@@ -66,7 +66,7 @@ function App() {
           newFlippedCards[second] = false;
           setFlippedCards([...newFlippedCards]); // update the flippedCards state
           setSelectedCards([]); // reset the selectedCards array
-          setIsComparing(false); // allow clicks again
+          setIsCheckingPair(false); // allow clicks again
         }, 500); // wait .5 second before flipping the cards back
       }
     } else {
@@ -83,7 +83,7 @@ function App() {
     setGameWon(false); // reset gameWon state
     setSelectedCards([]); // clear the selectedCards array
     setClickCount(0); // reset the click count
-    setIsComparing(false); // allow clicks again
+    setIsCheckingPair(false); // allow clicks again
   };
 
   return (
