@@ -4,7 +4,7 @@ import './App.css';
 
 // generates a deck of card pairs
 function generateDeck() {
-  const symbols = ['🐡', '🐠', '🐙', '🐬', '🐋', '🦐']; 
+  const symbols = ['🐡', '🐠', '🐙', '🐬', '🐋', '🦐']; // lil fishies
   return [...symbols, ...symbols]; // duplicate the symbols to create pairs
 }
 
