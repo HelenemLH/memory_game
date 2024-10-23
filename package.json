@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "react-confetti": "^6.1.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.7"
-  }
-}
