@@ -92,7 +92,7 @@ function App() {
       {gameWon && (
         <>
           <Confetti />
-          <p>Congratulations! You won!</p>
+          <p>Congratulations! You won! 💖 </p>
           <button style={{ marginBottom: '20px' }} onClick={restartGame}>Play Again</button>
         </>
       )}
